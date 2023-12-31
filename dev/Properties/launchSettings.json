@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RainbowFrame (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RainbowFrame (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
