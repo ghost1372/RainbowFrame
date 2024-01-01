@@ -14,7 +14,10 @@
 ### Recommended
 Install from MS Store
 
-
+<a href="https://apps.microsoft.com/detail/RainbowFrame/9P0PFLQK1B0W?launch=true
+	&mode=mini">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
 
 ### Github Release
 you can download from Github Release Section:
