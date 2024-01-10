@@ -17,11 +17,11 @@ jobs:
        dotnet-version: '8.0.x'
        fetch-depth: 0
         
-    - name: Get ${{ env.PROJECT_PATH }} Version
+    - name: Get ${{ env.APPNAME }} Version
       uses: kzrnm/get-net-sdk-project-versions-action@v1.3.0
       id: get-version
       with:
-        proj-path: ${{ env.APPNAME }}
+        proj-path: ${{ env.PROJECT_PATH }}
         
     - name: Build and Publish ${{ env.APPNAME }}
       run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -r win10-x64 -p:Platform=x64 --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:PublishTrimmed=false --output publish
