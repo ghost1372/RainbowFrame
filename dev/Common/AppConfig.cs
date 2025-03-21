@@ -1,4 +1,5 @@
-﻿using Nucs.JsonSettings.Examples;
+﻿using System.Collections.ObjectModel;
+using Nucs.JsonSettings.Examples;
 using Nucs.JsonSettings.Modulation;
 
 namespace RainbowFrame.Common;
@@ -15,4 +16,12 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     private bool resetWhenClosed { get; set; }
     private bool activeWindow { get; set; }
     private string lastUpdateCheck { get; set; }
+    private ObservableCollection<RainbowWindow> rainbowWindows { get; set; } = new();
+}
+
+public class RainbowWindow
+{
+    public nint HWND { get; set; }
+    public string Title { get; set; }
+    public int Speed { get; set; }
 }

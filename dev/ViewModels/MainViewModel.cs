@@ -91,7 +91,8 @@ public partial class MainViewModel : ObservableRecipient
             rainbowFrame?.StopRainbowFrame();
             rainbowFrame?.StartRainbowFrame();
 
-            //Save (new Item { HWND = window.Handle, Title = window.Text, Speed = speed });
+            Settings.RainbowWindows.Add(new Common.RainbowWindow { HWND = window.Handle, Title = window.Text, Speed = speed });
+            Settings.Save();
         }
     }
     internal void StopRainbowBase(Win32Window window)
@@ -164,7 +165,9 @@ public partial class MainViewModel : ObservableRecipient
         {
             ResetRainbowBase(item);
         }
-        // ClearItems();
+
+        Settings.RainbowWindows.Clear();
+        Settings.Save();
     }
 
     [RelayCommand]
@@ -172,7 +175,13 @@ public partial class MainViewModel : ObservableRecipient
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
         ResetRainbowBase(selectedItem);
-        // RemoveItem(selectedItem.Handle);
+
+        var rbWindow = Settings.RainbowWindows.Where(x => x.HWND == selectedItem.Handle).FirstOrDefault();
+        if (rbWindow != null)
+        {
+            Settings.RainbowWindows.Remove(rbWindow);
+            Settings.Save();
+        }
     }
 
     [RelayCommand]

@@ -22,7 +22,8 @@
                                       Header="Adjust Rainbow Effect Speed"
                                       HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Speed.png}"
                                       IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}">
-                        <NumberBox IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}"
+                        <NumberBox x:Name="NBSpeed"
+                                   IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}"
                                    Maximum="10"
                                    Minimum="1"
                                    SpinButtonPlacementMode="Inline"
