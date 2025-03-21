@@ -12,7 +12,7 @@ Install from MS Store
 
 ### Github Release
 you can download from Github Release Section:
-- Download frome Release
+- Download frome [Release](https://github.com/ghost1372/RainbowFrame/releases)
 
 ![RainbowFrame](https://raw.githubusercontent.com/Ghost1372/App-Resources/refs/heads/main/RainbowFrame/1.png)
 ![RainbowFrame](https://raw.githubusercontent.com/Ghost1372/App-Resources/refs/heads/main/RainbowFrame/2.png)
