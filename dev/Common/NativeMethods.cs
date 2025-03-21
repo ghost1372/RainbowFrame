@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace RainbowFrame.Common;
-internal class NativeMethods
+internal partial class NativeMethods
 {
     internal delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 

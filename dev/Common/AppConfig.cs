@@ -19,7 +19,7 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     private ObservableCollection<RainbowWindow> rainbowWindows { get; set; } = new();
 }
 
-public class RainbowWindow
+public partial class RainbowWindow
 {
     public nint HWND { get; set; }
     public string Title { get; set; }
