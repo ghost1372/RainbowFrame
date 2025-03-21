@@ -1,15 +1,28 @@
 ﻿using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RainbowFrame.Views;
+using static RainbowFrame.Common.NativeMethods;
 
 namespace RainbowFrame.ViewModels;
 
 public partial class MainViewModel : ObservableRecipient
 {
-    [DllImport("user32.dll")]
-    private static extern bool IsWindowVisible(IntPtr hWnd);
+    private IntPtr _previousWindow;
+    private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+    private const uint WINEVENT_OUTOFCONTEXT = 0;
+    private WinEventDelegate _winEventDelegate;
+
+
+    private Dictionary<string, Type> SettingsDictionary = new Dictionary<string, Type>()
+    {
+        { "AboutUsSettingPage", typeof(AboutUsSettingPage) },
+        { "AppUpdateSettingPage", typeof(AppUpdateSettingPage) },
+        { "GeneralSettingPage", typeof(GeneralSettingPage) },
+        { "ThemeSettingPage", typeof(ThemeSettingPage) },
+    };
+
+    public Dictionary<nint, DevWinUI.RainbowFrame> rainbowKeys = new();
 
     [ObservableProperty]
     public partial ObservableCollection<Win32Window> Windows { get; set; } = new();
@@ -25,12 +38,29 @@ public partial class MainViewModel : ObservableRecipient
 
     [ObservableProperty]
     public partial int RainbowEffectSpeed { get; set; } = 4;
+    public void OnEffectSpeedValueChanged()
+    {
+        Win32Window selectedItem = SelectedItem as Win32Window;
+        OnEffectSpeedChangedBase(selectedItem, RainbowEffectSpeed);
+    }
 
     [ObservableProperty]
     public partial int RainbowEffectSpeedAll { get; set; } = 4;
+    public void OnEffectSpeedAllValueChanged()
+    {
+        foreach (var item in Windows)
+        {
+            OnEffectSpeedChangedBase(item, RainbowEffectSpeedAll);
+        }
+    }
 
-    public Dictionary<nint, DevWinUI.RainbowFrame> rainbowKeys = new();
-
+    public MainViewModel()
+    {
+        if (Settings.ActiveWindow)
+        {
+            StartTracking();
+        }
+    }
     private List<Win32Window> GetOpenWindows()
     {
         List<Win32Window> _windows = new List<Win32Window>();
@@ -46,13 +76,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    [RelayCommand]
-    private void OnAllWindowToggled()
-    {
-        OnRefresh();
-    }
-
-    private void StartRainbowBase(Win32Window window)
+    internal void StartRainbowBase(Win32Window window)
     {
         rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
         if (window != null)
@@ -68,7 +92,7 @@ public partial class MainViewModel : ObservableRecipient
             rainbowFrame?.StartRainbowFrame();
         }
     }
-    private void StopRainbowBase(Win32Window window)
+    internal void StopRainbowBase(Win32Window window)
     {
         if (window != null)
         {
@@ -76,7 +100,7 @@ public partial class MainViewModel : ObservableRecipient
             rainbowFrame?.StopRainbowFrame();
         }
     }
-    private void ResetRainbowBase(Win32Window window)
+    internal void ResetRainbowBase(Win32Window window)
     {
         if (window != null)
         {
@@ -84,14 +108,19 @@ public partial class MainViewModel : ObservableRecipient
             rainbowFrame?.ResetFrameColorToDefault();
         }
     }
-
-    private void OnEffectSpeedChangedBase(Win32Window window, int speed)
+    internal void OnEffectSpeedChangedBase(Win32Window window, int speed)
     {
         if (window != null)
         {
             rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
             rainbowFrame?.UpdateEffectSpeed(speed);
         }
+    }
+
+    [RelayCommand]
+    private void OnAllWindowToggled()
+    {
+        OnRefresh();
     }
 
     [RelayCommand]
@@ -200,31 +229,10 @@ public partial class MainViewModel : ObservableRecipient
         await contentDialog.ShowAsync();
     }
 
-    public void OnEffectSpeedValueChanged()
-    {
-        Win32Window selectedItem = SelectedItem as Win32Window;
-        OnEffectSpeedChangedBase(selectedItem, RainbowEffectSpeed);
-    }
-    public void OnEffectSpeedAllValueChanged()
-    {
-        foreach (var item in Windows)
-        {
-            OnEffectSpeedChangedBase(item, RainbowEffectSpeedAll);
-        }
-    }
-
     [RelayCommand]
     private void OnRefresh()
     {
         Windows = new ObservableCollection<Win32Window>(GetOpenWindows());
-    }
-
-    public void ResetAll()
-    {
-        foreach (var rainbow in rainbowKeys)
-        {
-            rainbow.Value?.ResetFrameColorToDefault();
-        }
     }
 
     [RelayCommand]
@@ -243,23 +251,60 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private void OnExit()
     {
+        if (Settings.ResetWhenClosed)
+        {
+            ResetAll();
+        }
         Environment.Exit(0);
     }
 
     [RelayCommand]
     private void OnSettings(string page)
     {
-        keyValuePairs.TryGetValue(page, out var type);
+        SettingsDictionary.TryGetValue(page, out var type);
         var settingWindow = new SettingsWindow(type);
         WindowHelper.TrackWindow(settingWindow);
         settingWindow.Activate();
     }
 
-    private Dictionary<string, Type> keyValuePairs = new Dictionary<string, Type>()
+    public void ResetAll()
     {
-        { "AboutUsSettingPage", typeof(AboutUsSettingPage) },
-        { "AppUpdateSettingPage", typeof(AppUpdateSettingPage) },
-        { "GeneralSettingPage", typeof(GeneralSettingPage) },
-        { "ThemeSettingPage", typeof(ThemeSettingPage) },
-    };
+        foreach (var rainbow in rainbowKeys.Values)
+        {
+            rainbow?.ResetFrameColorToDefault();
+        }
+    }
+
+    public void StartTracking()
+    {
+        _winEventDelegate = new WinEventDelegate(WinEventProc);
+        SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
+    }
+
+    private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+    {
+        IntPtr activeWindowHandle = GetForegroundWindow();
+        if (!Windows.Where(x => x.Handle == activeWindowHandle).Any())
+        {
+            OnRefresh();
+        }
+
+        if (activeWindowHandle != _previousWindow)
+        {
+            // If the previously focused window is not null, reset the rainbow effect
+            if (_previousWindow != IntPtr.Zero && Settings.ActiveWindow)
+            {
+                ResetRainbowBase(new Win32Window(_previousWindow));
+            }
+
+            // Update the tracked window
+            _previousWindow = activeWindowHandle;
+
+            // Start the rainbow effect on the new active window
+            if (Settings.ActiveWindow)
+            {
+                StartRainbowBase(new Win32Window(activeWindowHandle));
+            }
+        }
+    }
 }

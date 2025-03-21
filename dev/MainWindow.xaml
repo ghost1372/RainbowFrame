@@ -48,7 +48,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -59,8 +58,8 @@
                     HorizontalAlignment="Stretch"
                     CornerRadius="{ThemeResource OverlayCornerRadius}">
                 <controls:Ribbon>
-                    <controls:RibbonCollapsibleGroup AccessKey="AB"
-                                                     CollapsedAccessKey="AA"
+                    <controls:RibbonCollapsibleGroup AccessKey="H"
+                                                     CollapsedAccessKey="HH"
                                                      Label="Home"
                                                      Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
                         <controls:RibbonCollapsibleGroup.IconSource>
@@ -218,21 +217,16 @@
                     </dev:SettingsCard>
                 </StackPanel>
             </ScrollView>
-            <InfoBar Grid.Row="2"
-                     Grid.ColumnSpan="2"
-                     CornerRadius="0,0,8,8"
-                     IsClosable="False"
-                     IsOpen="True"
-                     Severity="Informational" />
         </Grid>
-        <tb:TaskbarIcon IconSource="ms-appx:///Assets/icon.ico"
+        <tb:TaskbarIcon DoubleClickCommand="{x:Bind ViewModel.ShowHideWindowCommand}"
+                        IconSource="ms-appx:///Assets/icon.ico"
                         MenuActivation="LeftOrRightClick"
                         PopupActivation="DoubleClick"
                         ToolTipText="RainbowFrame">
             <tb:TaskbarIcon.ContextFlyout>
                 <MenuFlyout AreOpenCloseAnimationsEnabled="False">
                     <MenuFlyoutItem Command="{x:Bind ViewModel.ShowHideWindowCommand}"
-                                    Text="Show/Hide Window" />
+                                    Text="Show/Hide RainbowFrame" />
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem Command="{x:Bind ViewModel.ExitCommand}"
                                     Text="Exit" />

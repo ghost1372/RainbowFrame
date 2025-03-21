@@ -73,10 +73,21 @@ public sealed partial class MainWindow : Window
 
     private void OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            string query = sender.Text;
+
+            var filteredItems = ViewModel.Windows.Where(item =>
+                (item.Text != null && item.Text.Contains(query, StringComparison.OrdinalIgnoreCase)) ||
+                item.Handle.ToString().Contains(query)).ToList();
+
+            listView.ItemsSource = filteredItems;
+        }
     }
 
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
+
     }
 
     private void KeyboardAccelerator_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
@@ -88,6 +99,7 @@ public sealed partial class MainWindow : Window
     {
         ViewModel.RefreshCommand.Execute(null);
     }
+
     private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (listView.SelectedIndex == -1)

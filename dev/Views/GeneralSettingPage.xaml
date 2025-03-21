@@ -18,7 +18,9 @@
             <dev:SettingsCard Description="Enable this option to automatically apply the vibrant rainbow effect exclusively to the active window, ensuring a captivating visual enhancement that adapts seamlessly to your workflow"
                               Header="Dynamic Rainbow Effect for Active Window"
                               HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/icon.png}">
-                <ToggleSwitch IsOn="{x:Bind common:AppHelper.Settings.ActiveWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ToggleSwitch x:Name="TGActiveWindow"
+                              IsOn="{x:Bind common:AppHelper.Settings.ActiveWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Toggled="ActiveWindow_Toggled" />
             </dev:SettingsCard>
             <dev:SettingsCard Description="Automatically remove the rainbow effect for all windows when the application is closed, ensuring a clean slate every time."
                               Header="Reset All Windows on Closing"
