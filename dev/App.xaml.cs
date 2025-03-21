@@ -1,16 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml.Media;
 using RainbowFrame.ViewModels;
 
 namespace RainbowFrame;
 public partial class App : Application
 {
-    public static Window currentWindow = Window.Current;
-    public IThemeService ThemeService { get; set; }
+    public static Window MainWindow = Window.Current;
     public new static App Current => (App)Application.Current;
-    public string AppVersion { get; set; } = AssemblyInfoHelper.GetAssemblyVersion();
-    public string AppName { get; set; } = "RainbowFrame";
     public IServiceProvider Services { get; }
+    public IThemeService ThemeService => GetService<IThemeService>();
+
     public static T GetService<T>() where T : class
     {
         if ((App.Current as App)!.Services.GetService(typeof(T)) is not T service)
@@ -20,6 +18,7 @@ public partial class App : Application
 
         return service;
     }
+
     public App()
     {
         Services = ConfigureServices();
@@ -28,35 +27,25 @@ public partial class App : Application
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
-       
+
+        services.AddSingleton<IThemeService, ThemeService>();
         services.AddTransient<MainViewModel>();
 
         return services.BuildServiceProvider();
     }
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        currentWindow = new Window();
+        MainWindow = new MainWindow();
 
-        currentWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-        currentWindow.AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-
-        if (currentWindow.Content is not Frame rootFrame)
+        if (this.ThemeService != null)
         {
-            currentWindow.Content = rootFrame = new Frame();
+            this.ThemeService.AutoInitialize(MainWindow);
         }
 
-        ThemeService = new ThemeService();
-        ThemeService.Initialize(currentWindow);
-        ThemeService.ConfigBackdrop();
-        ThemeService.ConfigElementTheme();
-        ThemeService.ConfigBackdropFallBackColorForWindow10(Application.Current.Resources["ApplicationPageBackgroundThemeBrush"] as Brush);
+        MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;
+        MainWindow.AppWindow.SetIcon("Assets/icon.ico");
 
-        rootFrame.Navigate(typeof(MainPage));
-
-        currentWindow.Title = currentWindow.AppWindow.Title = $"{AppName} v{AppVersion}";
-        currentWindow.AppWindow.SetIcon("Assets/icon.ico");
-
-        currentWindow.Activate();
+        MainWindow.Activate();
     }
 }
 

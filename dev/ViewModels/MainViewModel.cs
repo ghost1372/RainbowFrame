@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
-using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -8,68 +7,39 @@ namespace RainbowFrame.ViewModels;
 
 public partial class MainViewModel : ObservableRecipient
 {
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)]
-    private static extern int GetWindowTextLength(IntPtr hWnd);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
-
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
     [DllImport("user32.dll")]
     private static extern bool IsWindowVisible(IntPtr hWnd);
 
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+    [ObservableProperty]
+    public partial ObservableCollection<Win32Window> Windows { get; set; } = new();
 
     [ObservableProperty]
-    public ObservableCollection<WindowInfo> windows = new();
+    public partial object SelectedItem { get; set; }
 
     [ObservableProperty]
-    public object selectedItem;
+    public partial bool IsUIElementEnabled { get; set; }
 
     [ObservableProperty]
-    public bool isUIElementEnabled;
+    public partial bool IsAllWindowToggled { get; set; }
 
     [ObservableProperty]
-    public bool isAllWindowToggled;
+    public partial int RainbowEffectSpeed { get; set; } = 4;
 
-    [ObservableProperty]
-    public int rainbowEffectSpeed = 4;
+    public Dictionary<nint, DevWinUI.RainbowFrame> rainbowKeys = new();
 
-    public Dictionary<string, WinUICommunity.RainbowFrame> rainbowKeys = new();
-
-    private List<WindowInfo> GetOpenWindows()
+    private List<Win32Window> GetOpenWindows()
     {
-        List<WindowInfo> _windows = new List<WindowInfo>();
+        List<Win32Window> _windows = new List<Win32Window>();
+        var topWindows = WindowHelper.GetTopLevelWindows();
 
-        EnumWindows((hWnd, lParam) =>
+        if (IsAllWindowToggled)
         {
-            if (IsWindowVisible(hWnd))
-            {
-                int textLength = GetWindowTextLength(hWnd);
-
-                StringBuilder titleBuilder = new StringBuilder(textLength + 1);
-                GetWindowText(hWnd, titleBuilder, titleBuilder.Capacity);
-
-                string title = titleBuilder.ToString();
-                if (IsAllWindowToggled)
-                {
-                    _windows.Add(new WindowInfo { HWnd = hWnd, Title = title });
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(title))
-                    {
-                        _windows.Add(new WindowInfo { HWnd = hWnd, Title = title });
-                    }
-                }
-            }
-
-            return true; // Continue enumeration
-        }, IntPtr.Zero);
-
-        return _windows;
+            return topWindows.ToList();
+        }
+        else
+        {
+            return topWindows.Where(w => !string.IsNullOrEmpty(w.Text) && IsWindowVisible(w.Handle)).ToList();
+        }
     }
 
     [RelayCommand]
@@ -79,19 +49,47 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private void OnStartRainbowForAll()
+    {
+        foreach (var item in Windows)
+        {
+            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
+
+            if (rainbowFrame == null)
+            {
+                rainbowFrame = new DevWinUI.RainbowFrame();
+                rainbowFrame.Initialize(item.Handle);
+                rainbowKeys.AddIfNotExists(item.Handle, rainbowFrame);
+            }
+            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
+            rainbowFrame?.StopRainbowFrame();
+            rainbowFrame?.StartRainbowFrame();
+        }
+    }
+
+    [RelayCommand]
+    private void OnStopRainbowForAll()
+    {
+        foreach (var item in Windows)
+        {
+            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
+            rainbowFrame?.StopRainbowFrame();
+        }
+    }
+
+    [RelayCommand]
     private void OnStartRainbow()
     {
-        WindowInfo selectedItem = SelectedItem as WindowInfo;
+        Win32Window selectedItem = SelectedItem as Win32Window;
 
-        WinUICommunity.RainbowFrame rainbowFrame = rainbowKeys.Where(x => x.Key.Equals(selectedItem.Title)).FirstOrDefault().Value;
-
+        rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
         if (selectedItem != null)
         {
             if (rainbowFrame == null)
             {
-                rainbowFrame = new WinUICommunity.RainbowFrame();
-                rainbowFrame.Initialize(selectedItem.HWnd);
-                rainbowKeys.AddIfNotExists(selectedItem.Title, rainbowFrame);
+                rainbowFrame = new DevWinUI.RainbowFrame();
+                rainbowFrame.Initialize(selectedItem.Handle);
+                rainbowKeys.AddIfNotExists(selectedItem.Handle, rainbowFrame);
             }
             rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
             rainbowFrame?.StopRainbowFrame();
@@ -102,22 +100,32 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private void OnStopRainbow()
     {
-        WindowInfo selectedItem = SelectedItem as WindowInfo;
+        Win32Window selectedItem = SelectedItem as Win32Window;
         if (selectedItem != null)
         {
-            var rainbow = rainbowKeys.Where(x => x.Key.Equals(selectedItem.Title)).FirstOrDefault();
-            rainbow.Value?.StopRainbowFrame();
+            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
+            rainbowFrame?.StopRainbowFrame();
+        }
+    }
+
+    [RelayCommand]
+    private void OnResetAll()
+    {
+        foreach (var item in Windows)
+        {
+            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
+            rainbowFrame?.ResetFrameColorToDefault();
         }
     }
 
     [RelayCommand]
     private void OnReset()
     {
-        WindowInfo selectedItem = SelectedItem as WindowInfo;
+        Win32Window selectedItem = SelectedItem as Win32Window;
         if (selectedItem != null)
         {
-            var rainbow = rainbowKeys.Where(x => x.Key.Equals(selectedItem.Title)).FirstOrDefault();
-            rainbow.Value?.ResetFrameColorToDefault();
+            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
+            rainbowFrame?.ResetFrameColorToDefault();
         }
     }
 
@@ -137,9 +145,8 @@ public partial class MainViewModel : ObservableRecipient
             IsAlphaTextInputVisible = true,
             Margin = new Thickness(10)
         };
-        WindowInfo selectedItem = SelectedItem as WindowInfo;
-        WinUICommunity.RainbowFrame rainbowFrame = rainbowKeys.Where(x => x.Key.Equals(selectedItem.Title)).FirstOrDefault().Value;
-
+        Win32Window selectedItem = SelectedItem as Win32Window;
+        rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
         colorPicker.ColorChanged += (s, e) =>
         {
             try
@@ -148,9 +155,9 @@ public partial class MainViewModel : ObservableRecipient
                 {
                     if (rainbowFrame == null)
                     {
-                        rainbowFrame = new WinUICommunity.RainbowFrame();
-                        rainbowFrame.Initialize(selectedItem.HWnd);
-                        rainbowKeys.AddIfNotExists(selectedItem.Title, rainbowFrame);
+                        rainbowFrame = new DevWinUI.RainbowFrame();
+                        rainbowFrame.Initialize(selectedItem.Handle);
+                        rainbowKeys.AddIfNotExists(selectedItem.Handle, rainbowFrame);
                     }
                     rainbowFrame?.StopRainbowFrame();
                     rainbowFrame?.ChangeFrameColor(e.NewColor);
@@ -163,11 +170,11 @@ public partial class MainViewModel : ObservableRecipient
 
         scrollViewer.Content = colorPicker;
         ContentDialog contentDialog = new ContentDialog();
-        contentDialog.XamlRoot = App.currentWindow.Content.XamlRoot;
+        contentDialog.XamlRoot = App.MainWindow.Content.XamlRoot;
         contentDialog.Loaded += (s, e) =>
         {
             contentDialog.Content = scrollViewer;
-            contentDialog.RequestedTheme = App.Current.ThemeService.GetCurrentTheme();
+            contentDialog.RequestedTheme = App.Current.ThemeService.GetElementTheme();
         };
         contentDialog.Title = "Choose Color";
         contentDialog.PrimaryButtonText = "Ok";
@@ -177,23 +184,23 @@ public partial class MainViewModel : ObservableRecipient
             rainbowFrame?.ResetFrameColorToDefault();
         };
         contentDialog.PrimaryButtonStyle = (Style)Application.Current.Resources["AccentButtonStyle"];
-        await contentDialog.ShowAsyncQueue();
+        await contentDialog.ShowAsync();
     }
 
     public void OnEffectSpeedValueChanged()
     {
-        WindowInfo selectedItem = SelectedItem as WindowInfo;
+        Win32Window selectedItem = SelectedItem as Win32Window;
         if (selectedItem != null)
         {
-            var rainbow = rainbowKeys.Where(x => x.Key.Equals(selectedItem.Title)).FirstOrDefault();
-            rainbow.Value?.UpdateEffectSpeed(RainbowEffectSpeed);
+            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
+            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
         }
     }
 
     [RelayCommand]
     private void OnRefresh()
     {
-        Windows = new ObservableCollection<WindowInfo>(GetOpenWindows());
+        Windows = new ObservableCollection<Win32Window>(GetOpenWindows());
     }
 
     public void ResetAll()
@@ -202,5 +209,24 @@ public partial class MainViewModel : ObservableRecipient
         {
             rainbow.Value?.ResetFrameColorToDefault();
         }
+    }
+
+    [RelayCommand]
+    private void OnShowHideWindow()
+    {
+        if (App.MainWindow.Visible)
+        {
+            App.MainWindow.AppWindow.Hide();
+        }
+        else
+        {
+            App.MainWindow.AppWindow.Show();
+        }
+    }
+
+    [RelayCommand]
+    private void OnExit()
+    {
+        Environment.Exit(0);
     }
 }

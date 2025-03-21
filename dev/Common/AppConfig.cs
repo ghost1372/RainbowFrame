@@ -1,14 +1,15 @@
-﻿using Nucs.JsonSettings;
+﻿using Nucs.JsonSettings.Examples;
 using Nucs.JsonSettings.Modulation;
 
 namespace RainbowFrame.Common;
-public class AppConfig : JsonSettings, IVersionable
+
+[GenerateAutoSaveOnChange]
+public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 {
-    [EnforcedVersion("1.0.0.0")]
-    public virtual Version Version { get; set; } = new Version(1, 0, 0, 0);
+    [EnforcedVersion("1.2.1.0")]
+    public Version Version { get; set; } = new Version(1, 1, 0, 0);
 
-    public override string FileName { get; set; } = Constants.AppConfigPath;
-
-
-    // Docs: https://github.com/Nucs/JsonSettings
+    public string fileName { get; set; } = Constants.AppConfigPath;
+    public bool useTrayIcon { get; set; } = true;
+    public bool isFirstTrayIcon { get; set; } = true;
 }

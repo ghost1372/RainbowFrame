@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>RainbowFrame</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -12,12 +12,11 @@
     <EnableMsixTooling>true</EnableMsixTooling>
 	  <Version>1.0.0</Version>
 	  <ImplicitUsings>true</ImplicitUsings>
-	  <LangVersion>Latest</LangVersion>
+	  <LangVersion>preview</LangVersion>
 	  <AccelerateBuildsInVisualStudio>False</AccelerateBuildsInVisualStudio>
 	  <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	  <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <UseRidGraph>true</UseRidGraph>
   </PropertyGroup>
   
   <ItemGroup>
@@ -25,14 +24,24 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
+  
   <ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231115000" />
-	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="WinUICommunity.Components" Version="6.0.0" />
-    <PackageReference Include="WinUICommunity.Core" Version="6.0.0" />
-    <PackageReference Include="WinUICommunity.LandingPages" Version="6.0.0" />
+    <None Remove="MainWindow.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.250319-build.2093" />
+	  <PackageReference Include="CommunityToolkit.Labs.WinUI.Ribbon" Version="0.1.250319-build.2093" />
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	  <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.250129-preview2" />
+	  <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
+	  <PackageReference Include="H.NotifyIcon.WinUI" Version="2.3.0" />
+	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
+	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
+    <PackageReference Include="DevWinUI" Version="8.1.0" />
+    <PackageReference Include="DevWinUI.Controls" Version="8.1.0" />
+    <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
+	  <PackageReference Include="nucs.JsonSettings.AutosaveGenerator" Version="2.0.4" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -43,6 +52,11 @@
   -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!-- 
