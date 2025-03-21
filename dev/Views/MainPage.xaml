@@ -41,7 +41,7 @@
                                             Icon="ViewAll"
                                             IsChecked="{x:Bind ViewModel.IsAllWindowToggled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             Label="View All"
-                                            ToolTipService.ToolTip="Show All Windows (Event Without Title)" />
+                                            ToolTipService.ToolTip="Show All Windows (HWND)" />
                     </StackPanel>
                 </controls:RibbonCollapsibleGroup>
                 <controls:RibbonCollapsibleGroup Label="Options">
