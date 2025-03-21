@@ -23,9 +23,9 @@ env:
   PUBLISH_OUTPUT_FOLDER: Publish
   PUBLISH_SELF_CONTAINED: false
   PUBLISH_SINGLE_FILE: false
-  PUBLISH_READY_TO_RUN: true
-  PUBLISH_AOT: true
-  PUBLISH_TRIMMED: true
+  PUBLISH_READY_TO_RUN: false
+  PUBLISH_AOT: false
+  PUBLISH_TRIMMED: false
   PUBLISH_TRIM_MODE: partial # or full
 
   # Configuring GitHub Release
