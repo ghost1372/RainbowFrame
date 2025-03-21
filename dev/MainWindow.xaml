@@ -148,9 +148,13 @@
                     <TranslateTransform X="-7" />
                 </controls:GridSplitter.RenderTransform>
             </controls:GridSplitter>
-            <ScrollView Grid.Row="1"
-                        Grid.Column="1">
-                <StackPanel Margin="10">
+            <Grid Grid.Row="1"
+                  Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="10,10,10,0">
                     <dev:SettingsExpander Description="Activating this feature creates a dynamic rainbow effect on all visible windows, adding a vibrant touch of color to your experience."
                                           Header="Rainbow Effect for All Windows"
                                           HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}">
@@ -168,55 +172,17 @@
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>
-                    <dev:SettingsExpander Description="Choose this option to apply a vibrant rainbow effect to a selected window, adding a touch of radiance precisely where you want it."
-                                          Header="Rainbow Effect for Specific Window"
-                                          HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}"
-                                          IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}"
-                                          IsExpanded="True">
-                        <ToggleSwitch x:Name="TGRainbowEffectForWindow"
-                                      Toggled="OnRainbowEffectForWindow_Toggled" />
-                        <dev:SettingsExpander.Items>
-                            <dev:SettingsCard Description="Customize the pace of the rainbow effect, allowing you to choose between a calm, slow or a fast, energetic color transition."
-                                              Header="Adjust Rainbow Effect Speed"
-                                              HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Speed.png}"
-                                              IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}">
-                                <NumberBox IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}"
-                                           Maximum="10"
-                                           Minimum="1"
-                                           SpinButtonPlacementMode="Inline"
-                                           ValueChanged="NumberBox_ValueChanged"
-                                           Value="{x:Bind ViewModel.RainbowEffectSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </dev:SettingsCard>
-                        </dev:SettingsExpander.Items>
-                    </dev:SettingsExpander>
-                    <dev:SettingsExpander Description="Instantly remove the rainbow effect from a specific window, restoring it to its original state."
-                                          Header="Reset Rainbow Effect for Selected Window"
-                                          HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Reset.png}"
-                                          IsExpanded="True">
+                    <dev:SettingsCard Description="Instantly remove the rainbow effect from all windows."
+                                      Header="Reset Rainbow Effect for All Windows"
+                                      HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Reset.png}">
                         <Button MinWidth="100"
-                                Command="{x:Bind ViewModel.ResetCommand}"
-                                Content="Reset"
-                                IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}" />
-                        <dev:SettingsExpander.ItemsFooter>
-                            <dev:SettingsCard Description="Instantly remove the rainbow effect from all windows."
-                                              Header="Reset Rainbow Effect for All Windows"
-                                              HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Reset.png}">
-                                <Button MinWidth="100"
-                                        Command="{x:Bind ViewModel.ResetAllCommand}"
-                                        Content="Reset All" />
-                            </dev:SettingsCard>
-                        </dev:SettingsExpander.ItemsFooter>
-                    </dev:SettingsExpander>
-                    <dev:SettingsCard Description="Personalize your experience by choosing a single, solid color for the window frames, adding a sleek and unified look to your display."
-                                      Header="Select Frame Color"
-                                      HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/ColorPicker.png}"
-                                      IsEnabled="{x:Bind ViewModel.IsUIElementEnabled, Mode=OneWay}">
-                        <Button x:Name="btnChooseColor"
-                                Command="{x:Bind ViewModel.ChooseColorCommand}"
-                                Content="Choose Color" />
+                                Command="{x:Bind ViewModel.ResetAllCommand}"
+                                Content="Reset All" />
                     </dev:SettingsCard>
                 </StackPanel>
-            </ScrollView>
+                <Frame x:Name="MainFrame"
+                       Grid.Row="1" />
+            </Grid>
         </Grid>
         <tb:TaskbarIcon DoubleClickCommand="{x:Bind ViewModel.ShowHideWindowCommand}"
                         IconSource="ms-appx:///Assets/icon.ico"

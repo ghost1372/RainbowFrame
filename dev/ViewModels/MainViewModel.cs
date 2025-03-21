@@ -76,7 +76,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    internal void StartRainbowBase(Win32Window window)
+    internal void StartRainbowBase(Win32Window window, int speed)
     {
         rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
         if (window != null)
@@ -87,9 +87,11 @@ public partial class MainViewModel : ObservableRecipient
                 rainbowFrame.Initialize(window.Handle);
                 rainbowKeys.AddIfNotExists(window.Handle, rainbowFrame);
             }
-            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
+            rainbowFrame?.UpdateEffectSpeed(speed);
             rainbowFrame?.StopRainbowFrame();
             rainbowFrame?.StartRainbowFrame();
+
+            //Save (new Item { HWND = window.Handle, Title = window.Text, Speed = speed });
         }
     }
     internal void StopRainbowBase(Win32Window window)
@@ -128,7 +130,7 @@ public partial class MainViewModel : ObservableRecipient
     {
         foreach (var item in Windows)
         {
-            StartRainbowBase(item);
+            StartRainbowBase(item, RainbowEffectSpeedAll);
         }
     }
 
@@ -145,7 +147,7 @@ public partial class MainViewModel : ObservableRecipient
     private void OnStartRainbow()
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
-        StartRainbowBase(selectedItem);
+        StartRainbowBase(selectedItem, RainbowEffectSpeed);
     }
 
     [RelayCommand]
@@ -162,6 +164,7 @@ public partial class MainViewModel : ObservableRecipient
         {
             ResetRainbowBase(item);
         }
+        // ClearItems();
     }
 
     [RelayCommand]
@@ -169,6 +172,7 @@ public partial class MainViewModel : ObservableRecipient
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
         ResetRainbowBase(selectedItem);
+        // RemoveItem(selectedItem.Handle);
     }
 
     [RelayCommand]
@@ -303,7 +307,7 @@ public partial class MainViewModel : ObservableRecipient
             // Start the rainbow effect on the new active window
             if (Settings.ActiveWindow)
             {
-                StartRainbowBase(new Win32Window(activeWindowHandle));
+                StartRainbowBase(new Win32Window(activeWindowHandle), RainbowEffectSpeedAll);
             }
         }
     }

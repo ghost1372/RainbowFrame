@@ -1,4 +1,5 @@
 ﻿using RainbowFrame.ViewModels;
+using RainbowFrame.Views;
 
 namespace RainbowFrame;
 
@@ -110,26 +111,7 @@ public sealed partial class MainWindow : Window
         {
             ViewModel.IsUIElementEnabled = true;
         }
-    }
-    private void NumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
-    {
-        ViewModel?.OnEffectSpeedValueChanged();
-    }
-    private void NumberBoxAll_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
-    {
-        ViewModel?.OnEffectSpeedAllValueChanged();
-    }
-
-    private void OnRainbowEffectForWindow_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (TGRainbowEffectForWindow.IsOn)
-        {
-            ViewModel.StartRainbowCommand.Execute(null);
-        }
-        else
-        {
-            ViewModel.StopRainbowCommand.Execute(null);
-        }
+        MainFrame.Navigate(typeof(ControlCenterPage));
     }
 
     private void OnRainbowEffectForAllWindow_Toggled(object sender, RoutedEventArgs e)
@@ -142,6 +124,11 @@ public sealed partial class MainWindow : Window
         {
             ViewModel.StopRainbowForAllCommand.Execute(null);
         }
+    }
+
+    private void NumberBoxAll_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        ViewModel?.OnEffectSpeedAllValueChanged();
     }
 }
 
