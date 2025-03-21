@@ -30,6 +30,8 @@ public partial class App : Application
 
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddTransient<MainViewModel>();
+        services.AddTransient<AppUpdateSettingViewModel>();
+        services.AddTransient<GeneralSettingViewModel>();
 
         return services.BuildServiceProvider();
     }

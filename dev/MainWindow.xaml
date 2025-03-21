@@ -7,6 +7,7 @@
         xmlns:dev="using:DevWinUI"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:tb="using:H.NotifyIcon"
+        xmlns:views="using:RainbowFrame.Views"
         mc:Ignorable="d">
     <Grid Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
@@ -53,52 +54,58 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <controls:Ribbon Grid.ColumnSpan="2"
-                             HorizontalAlignment="Stretch">
-                <controls:RibbonCollapsibleGroup AccessKey="AB"
-                                                 CollapsedAccessKey="AA"
-                                                 Label="Home"
-                                                 Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
-                    <controls:RibbonCollapsibleGroup.IconSource>
-                        <SymbolIconSource Symbol="Home" />
-                    </controls:RibbonCollapsibleGroup.IconSource>
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="10">
-                        <AppBarButton x:Name="btnRefresh"
-                                      Command="{x:Bind ViewModel.RefreshCommand}"
-                                      Icon="Refresh"
-                                      Label="Refresh"
-                                      ToolTipService.ToolTip="Refresh Windows List" />
-                        <AppBarToggleButton Command="{x:Bind ViewModel.AllWindowToggledCommand}"
-                                            Icon="ViewAll"
-                                            IsChecked="{x:Bind ViewModel.IsAllWindowToggled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            Label="View All"
-                                            ToolTipService.ToolTip="Show All Windows (Event Without Title)" />
-                    </StackPanel>
-                </controls:RibbonCollapsibleGroup>
+            <Border Grid.ColumnSpan="2"
+                    Margin="10"
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="{ThemeResource OverlayCornerRadius}">
+                <controls:Ribbon>
+                    <controls:RibbonCollapsibleGroup AccessKey="AB"
+                                                     CollapsedAccessKey="AA"
+                                                     Label="Home"
+                                                     Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+                        <controls:RibbonCollapsibleGroup.IconSource>
+                            <SymbolIconSource Symbol="Home" />
+                        </controls:RibbonCollapsibleGroup.IconSource>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="10">
+                            <AppBarButton x:Name="btnRefresh"
+                                          Command="{x:Bind ViewModel.RefreshCommand}"
+                                          Icon="Refresh"
+                                          Label="Refresh"
+                                          ToolTipService.ToolTip="Refresh Windows List" />
+                            <AppBarToggleButton Command="{x:Bind ViewModel.AllWindowToggledCommand}"
+                                                Icon="ViewAll"
+                                                IsChecked="{x:Bind ViewModel.IsAllWindowToggled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Label="View All"
+                                                ToolTipService.ToolTip="Show All Windows (Event Without Title)" />
+                        </StackPanel>
+                    </controls:RibbonCollapsibleGroup>
+                    <controls:RibbonGroup Label="Options"
+                                          Style="{StaticResource RibbonRightGroupStyle}">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="10">
+                            <AppBarButton Command="{x:Bind ViewModel.SettingsCommand}"
+                                          CommandParameter="GeneralSettingPage"
+                                          Icon="Setting"
+                                          Label="General"
+                                          ToolTipService.ToolTip="Change your app Settings" />
+                            <AppBarButton Command="{x:Bind ViewModel.SettingsCommand}"
+                                          CommandParameter="ThemeSettingPage"
+                                          Icon="{dev:FontIcon GlyphName=Color}"
+                                          Label="Theme" />
+                            <AppBarButton Command="{x:Bind ViewModel.SettingsCommand}"
+                                          CommandParameter="AppUpdateSettingPage"
+                                          Icon="{dev:FontIcon GlyphName=DevUpdate}"
+                                          Label="Update" />
+                            <AppBarButton Command="{x:Bind ViewModel.SettingsCommand}"
+                                          CommandParameter="AboutUsSettingPage"
+                                          Icon="{dev:FontIcon GlyphName=Info}"
+                                          Label="About us" />
+                        </StackPanel>
+                    </controls:RibbonGroup>
+                </controls:Ribbon>
+            </Border>
 
-                <controls:RibbonGroup Label="About Us">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="10">
-                        <AppBarButton Click="btnGotoSource_Click"
-                                      Label="Source Code">
-                            <AppBarButton.Icon>
-                                <PathIcon Data="{StaticResource GithubIcon}" />
-                            </AppBarButton.Icon>
-                        </AppBarButton>
-                        <AppBarButton Icon="Library"
-                                      Label="About Us" />
-                    </StackPanel>
-                </controls:RibbonGroup>
-
-                <controls:RibbonGroup Label="Options"
-                                      Style="{StaticResource RibbonRightGroupStyle}">
-                    <AppBarButton Width="48"
-                                  Height="48"
-                                  Icon="Setting"
-                                  LabelPosition="Collapsed" />
-                </controls:RibbonGroup>
-            </controls:Ribbon>
             <ListView x:Name="listView"
                       Grid.Row="1"
                       ItemsSource="{x:Bind ViewModel.Windows, Mode=OneWay}"
@@ -145,12 +152,23 @@
             <ScrollView Grid.Row="1"
                         Grid.Column="1">
                 <StackPanel Margin="10">
-                    <dev:SettingsCard Description="Activating this feature creates a dynamic rainbow effect on all visible windows, adding a vibrant touch of color to your experience."
-                                      Header="Rainbow Effect for All Windows"
-                                      HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}">
+                    <dev:SettingsExpander Description="Activating this feature creates a dynamic rainbow effect on all visible windows, adding a vibrant touch of color to your experience."
+                                          Header="Rainbow Effect for All Windows"
+                                          HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}">
                         <ToggleSwitch x:Name="TGRainbowEffectForAllWindow"
                                       Toggled="OnRainbowEffectForAllWindow_Toggled" />
-                    </dev:SettingsCard>
+                        <dev:SettingsExpander.Items>
+                            <dev:SettingsCard Description="Customize the pace of the rainbow effect, allowing you to choose between a calm, slow or a fast, energetic color transition."
+                                              Header="Adjust Rainbow Effect Speed"
+                                              HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Speed.png}">
+                                <NumberBox Maximum="10"
+                                           Minimum="1"
+                                           SpinButtonPlacementMode="Inline"
+                                           ValueChanged="NumberBoxAll_ValueChanged"
+                                           Value="{x:Bind ViewModel.RainbowEffectSpeedAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </dev:SettingsCard>
+                        </dev:SettingsExpander.Items>
+                    </dev:SettingsExpander>
                     <dev:SettingsExpander Description="Choose this option to apply a vibrant rainbow effect to a selected window, adding a touch of radiance precisely where you want it."
                                           Header="Rainbow Effect for Specific Window"
                                           HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}"
@@ -197,11 +215,6 @@
                         <Button x:Name="btnChooseColor"
                                 Command="{x:Bind ViewModel.ChooseColorCommand}"
                                 Content="Choose Color" />
-                    </dev:SettingsCard>
-                    <dev:SettingsCard Description="Automatically remove the rainbow effect for all windows when the application is closed, ensuring a clean slate every time."
-                                      Header="Reset All Windows on Closing"
-                                      HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/Reset.png}">
-                        <ToggleSwitch x:Name="TGResetAll" />
                     </dev:SettingsCard>
                 </StackPanel>
             </ScrollView>

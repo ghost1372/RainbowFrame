@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RainbowFrame.Views;
 
 namespace RainbowFrame.ViewModels;
 
@@ -24,6 +25,9 @@ public partial class MainViewModel : ObservableRecipient
 
     [ObservableProperty]
     public partial int RainbowEffectSpeed { get; set; } = 4;
+
+    [ObservableProperty]
+    public partial int RainbowEffectSpeedAll { get; set; } = 4;
 
     public Dictionary<nint, DevWinUI.RainbowFrame> rainbowKeys = new();
 
@@ -48,22 +52,54 @@ public partial class MainViewModel : ObservableRecipient
         OnRefresh();
     }
 
+    private void StartRainbowBase(Win32Window window)
+    {
+        rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
+        if (window != null)
+        {
+            if (rainbowFrame == null)
+            {
+                rainbowFrame = new DevWinUI.RainbowFrame();
+                rainbowFrame.Initialize(window.Handle);
+                rainbowKeys.AddIfNotExists(window.Handle, rainbowFrame);
+            }
+            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
+            rainbowFrame?.StopRainbowFrame();
+            rainbowFrame?.StartRainbowFrame();
+        }
+    }
+    private void StopRainbowBase(Win32Window window)
+    {
+        if (window != null)
+        {
+            rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
+            rainbowFrame?.StopRainbowFrame();
+        }
+    }
+    private void ResetRainbowBase(Win32Window window)
+    {
+        if (window != null)
+        {
+            rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
+            rainbowFrame?.ResetFrameColorToDefault();
+        }
+    }
+
+    private void OnEffectSpeedChangedBase(Win32Window window, int speed)
+    {
+        if (window != null)
+        {
+            rainbowKeys.TryGetValue(window.Handle, out var rainbowFrame);
+            rainbowFrame?.UpdateEffectSpeed(speed);
+        }
+    }
+
     [RelayCommand]
     private void OnStartRainbowForAll()
     {
         foreach (var item in Windows)
         {
-            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
-
-            if (rainbowFrame == null)
-            {
-                rainbowFrame = new DevWinUI.RainbowFrame();
-                rainbowFrame.Initialize(item.Handle);
-                rainbowKeys.AddIfNotExists(item.Handle, rainbowFrame);
-            }
-            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
-            rainbowFrame?.StopRainbowFrame();
-            rainbowFrame?.StartRainbowFrame();
+            StartRainbowBase(item);
         }
     }
 
@@ -72,8 +108,7 @@ public partial class MainViewModel : ObservableRecipient
     {
         foreach (var item in Windows)
         {
-            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
-            rainbowFrame?.StopRainbowFrame();
+            StopRainbowBase(item);
         }
     }
 
@@ -81,31 +116,14 @@ public partial class MainViewModel : ObservableRecipient
     private void OnStartRainbow()
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
-
-        rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
-        if (selectedItem != null)
-        {
-            if (rainbowFrame == null)
-            {
-                rainbowFrame = new DevWinUI.RainbowFrame();
-                rainbowFrame.Initialize(selectedItem.Handle);
-                rainbowKeys.AddIfNotExists(selectedItem.Handle, rainbowFrame);
-            }
-            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
-            rainbowFrame?.StopRainbowFrame();
-            rainbowFrame?.StartRainbowFrame();
-        }
+        StartRainbowBase(selectedItem);
     }
 
     [RelayCommand]
     private void OnStopRainbow()
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
-        if (selectedItem != null)
-        {
-            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
-            rainbowFrame?.StopRainbowFrame();
-        }
+        StopRainbowBase(selectedItem);
     }
 
     [RelayCommand]
@@ -113,8 +131,7 @@ public partial class MainViewModel : ObservableRecipient
     {
         foreach (var item in Windows)
         {
-            rainbowKeys.TryGetValue(item.Handle, out var rainbowFrame);
-            rainbowFrame?.ResetFrameColorToDefault();
+            ResetRainbowBase(item);
         }
     }
 
@@ -122,11 +139,7 @@ public partial class MainViewModel : ObservableRecipient
     private void OnReset()
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
-        if (selectedItem != null)
-        {
-            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
-            rainbowFrame?.ResetFrameColorToDefault();
-        }
+        ResetRainbowBase(selectedItem);
     }
 
     [RelayCommand]
@@ -190,10 +203,13 @@ public partial class MainViewModel : ObservableRecipient
     public void OnEffectSpeedValueChanged()
     {
         Win32Window selectedItem = SelectedItem as Win32Window;
-        if (selectedItem != null)
+        OnEffectSpeedChangedBase(selectedItem, RainbowEffectSpeed);
+    }
+    public void OnEffectSpeedAllValueChanged()
+    {
+        foreach (var item in Windows)
         {
-            rainbowKeys.TryGetValue(selectedItem.Handle, out var rainbowFrame);
-            rainbowFrame?.UpdateEffectSpeed(RainbowEffectSpeed);
+            OnEffectSpeedChangedBase(item, RainbowEffectSpeedAll);
         }
     }
 
@@ -229,4 +245,21 @@ public partial class MainViewModel : ObservableRecipient
     {
         Environment.Exit(0);
     }
+
+    [RelayCommand]
+    private void OnSettings(string page)
+    {
+        keyValuePairs.TryGetValue(page, out var type);
+        var settingWindow = new SettingsWindow(type);
+        WindowHelper.TrackWindow(settingWindow);
+        settingWindow.Activate();
+    }
+
+    private Dictionary<string, Type> keyValuePairs = new Dictionary<string, Type>()
+    {
+        { "AboutUsSettingPage", typeof(AboutUsSettingPage) },
+        { "AppUpdateSettingPage", typeof(AppUpdateSettingPage) },
+        { "GeneralSettingPage", typeof(GeneralSettingPage) },
+        { "ThemeSettingPage", typeof(ThemeSettingPage) },
+    };
 }

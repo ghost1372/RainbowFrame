@@ -17,6 +17,7 @@
 	  <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	  <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   
   <ItemGroup>
@@ -25,9 +26,6 @@
 	  </None>
   </ItemGroup>
   
-  <ItemGroup>
-    <None Remove="MainWindow.xaml" />
-  </ItemGroup>
   <ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.250319-build.2093" />
 	  <PackageReference Include="CommunityToolkit.Labs.WinUI.Ribbon" Version="0.1.250319-build.2093" />
@@ -52,11 +50,6 @@
   -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
   <!-- 

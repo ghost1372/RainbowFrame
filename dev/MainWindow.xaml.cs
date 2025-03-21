@@ -1,5 +1,4 @@
 ﻿using RainbowFrame.ViewModels;
-using Windows.System;
 
 namespace RainbowFrame;
 
@@ -59,7 +58,7 @@ public sealed partial class MainWindow : Window
             {
                 args.Handled = false;
 
-                if (TGResetAll.IsOn)
+                if (Settings.ResetWhenClosed)
                 {
                     ViewModel?.ResetAll();
                 }
@@ -89,11 +88,6 @@ public sealed partial class MainWindow : Window
     {
         ViewModel.RefreshCommand.Execute(null);
     }
-    private async void btnGotoSource_Click(object sender, RoutedEventArgs e)
-    {
-        await Launcher.LaunchUriAsync(new Uri("https://github.com/ghost1372/RainbowFrame/"));
-    }
-
     private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (listView.SelectedIndex == -1)
@@ -108,6 +102,10 @@ public sealed partial class MainWindow : Window
     private void NumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
         ViewModel?.OnEffectSpeedValueChanged();
+    }
+    private void NumberBoxAll_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        ViewModel?.OnEffectSpeedAllValueChanged();
     }
 
     private void OnRainbowEffectForWindow_Toggled(object sender, RoutedEventArgs e)
