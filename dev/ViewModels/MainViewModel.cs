@@ -37,6 +37,9 @@ public partial class MainViewModel : ObservableRecipient
     public partial bool IsAllWindowToggled { get; set; }
 
     [ObservableProperty]
+    public partial bool UseRainbowEffectForAllWindow { get; set; }
+
+    [ObservableProperty]
     public partial int RainbowEffectSpeed { get; set; } = 4;
     public void OnEffectSpeedValueChanged()
     {
@@ -56,10 +59,7 @@ public partial class MainViewModel : ObservableRecipient
 
     public MainViewModel()
     {
-        if (Settings.ActiveWindow)
-        {
-            StartTracking();
-        }
+        StartTracking();
     }
     private List<Win32Window> GetOpenWindows()
     {
@@ -314,7 +314,7 @@ public partial class MainViewModel : ObservableRecipient
             _previousWindow = activeWindowHandle;
 
             // Start the rainbow effect on the new active window
-            if (Settings.ActiveWindow)
+            if (Settings.ActiveWindow || UseRainbowEffectForAllWindow)
             {
                 StartRainbowBase(new Win32Window(activeWindowHandle), RainbowEffectSpeedAll);
             }

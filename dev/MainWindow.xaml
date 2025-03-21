@@ -159,6 +159,7 @@
                                           Header="Rainbow Effect for All Windows"
                                           HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/Fluent/StartStop.png}">
                         <ToggleSwitch x:Name="TGRainbowEffectForAllWindow"
+                                      IsOn="{x:Bind ViewModel.UseRainbowEffectForAllWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       Toggled="OnRainbowEffectForAllWindow_Toggled" />
                         <dev:SettingsExpander.Items>
                             <dev:SettingsCard Description="Customize the pace of the rainbow effect, allowing you to choose between a calm, slow or a fast, energetic color transition."

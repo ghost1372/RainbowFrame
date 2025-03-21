@@ -1,4 +1,5 @@
-﻿using RainbowFrame.ViewModels;
+﻿using RainbowFrame.Common;
+using RainbowFrame.ViewModels;
 using RainbowFrame.Views;
 
 namespace RainbowFrame;
@@ -47,7 +48,7 @@ public sealed partial class MainWindow : Window
                 Environment.Exit(0);
             };
             contentDialog.PrimaryButtonStyle = (Style)Application.Current.Resources["AccentButtonStyle"];
-            await contentDialog.ShowAsync();
+            await contentDialog.ShowAsyncQueue();
         }
         else
         {
