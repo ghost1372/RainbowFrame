@@ -20,6 +20,14 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   
+  <PropertyGroup>
+    <PublishAot>True</PublishAot>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+  </PropertyGroup>
+
   <ItemGroup>
 	  <None Include="Assets\**\*">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -33,6 +41,7 @@
 	  <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.250129-preview2" />
 	  <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
 	  <PackageReference Include="H.NotifyIcon.WinUI" Version="2.3.0" />
+	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
 	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
