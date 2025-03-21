@@ -13,15 +13,6 @@ public partial class MainViewModel : ObservableRecipient
     private const uint WINEVENT_OUTOFCONTEXT = 0;
     private WinEventDelegate _winEventDelegate;
 
-
-    private Dictionary<string, Type> SettingsDictionary = new Dictionary<string, Type>()
-    {
-        { "AboutUsSettingPage", typeof(AboutUsSettingPage) },
-        { "AppUpdateSettingPage", typeof(AppUpdateSettingPage) },
-        { "GeneralSettingPage", typeof(GeneralSettingPage) },
-        { "ThemeSettingPage", typeof(ThemeSettingPage) },
-    };
-
     public Dictionary<nint, DevWinUI.RainbowFrame> rainbowKeys = new();
 
     [ObservableProperty]
@@ -247,39 +238,6 @@ public partial class MainViewModel : ObservableRecipient
     {
         Windows = new ObservableCollection<Win32Window>(GetOpenWindows());
     }
-
-    [RelayCommand]
-    private void OnShowHideWindow()
-    {
-        if (App.MainWindow.Visible)
-        {
-            App.MainWindow.AppWindow.Hide();
-        }
-        else
-        {
-            App.MainWindow.AppWindow.Show();
-        }
-    }
-
-    [RelayCommand]
-    private void OnExit()
-    {
-        if (Settings.ResetWhenClosed)
-        {
-            ResetAll();
-        }
-        Environment.Exit(0);
-    }
-
-    [RelayCommand]
-    private void OnSettings(string page)
-    {
-        SettingsDictionary.TryGetValue(page, out var type);
-        var settingWindow = new SettingsWindow(type);
-        WindowHelper.TrackWindow(settingWindow);
-        settingWindow.Activate();
-    }
-
     public void ResetAll()
     {
         foreach (var rainbow in rainbowKeys.Values)
@@ -319,5 +277,11 @@ public partial class MainViewModel : ObservableRecipient
                 StartRainbowBase(new Win32Window(activeWindowHandle), RainbowEffectSpeedAll);
             }
         }
+    }
+
+    [RelayCommand]
+    private void OnNavigateToSettings()
+    {
+        App.Current.NavService.NavigateTo(typeof(SettingsPage));
     }
 }

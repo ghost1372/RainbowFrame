@@ -8,6 +8,7 @@ public partial class App : Application
     public new static App Current => (App)Application.Current;
     public IServiceProvider Services { get; }
     public IThemeService ThemeService => GetService<IThemeService>();
+    public IJsonNavigationService NavService => GetService<IJsonNavigationService>();
 
     public static T GetService<T>() where T : class
     {
@@ -29,6 +30,8 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<IJsonNavigationService, JsonNavigationService>();
+
         services.AddTransient<MainViewModel>();
         services.AddTransient<AppUpdateSettingViewModel>();
         services.AddTransient<GeneralSettingViewModel>();

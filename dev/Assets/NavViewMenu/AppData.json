@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/Ghost1372/DevWinUI/refs/heads/main/AppData.Schema.json",
+  "Groups": [
+    {
+      "UniqueId": "RainbowFrame.Views.MainPage",
+      "ShowItemsWithoutGroup": true,
+      "Items": [
+        {
+          "UniqueId": "RainbowFrame.Views.MainPage",
+          "Title": "Home",
+          "HideItem": true
+        }
+      ]
+    }
+  ]
+}

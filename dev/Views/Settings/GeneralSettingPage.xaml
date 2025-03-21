@@ -8,6 +8,7 @@
       xmlns:local="using:RainbowFrame"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:views="using:RainbowFrame.Views"
+      dev:BreadcrumbNavigator.IsHeaderVisible="True"
       mc:Ignorable="d">
     <ScrollView Margin="{ThemeResource ContentPageMargin}"
                 Padding="{ThemeResource ContentPagePadding}"
@@ -19,8 +20,7 @@
                               Header="Dynamic Rainbow Effect for Active Window"
                               HeaderIcon="{dev:BitmapIcon Source=ms-appx:///Assets/icon.png}">
                 <ToggleSwitch x:Name="TGActiveWindow"
-                              IsOn="{x:Bind common:AppHelper.Settings.ActiveWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Toggled="ActiveWindow_Toggled" />
+                              IsOn="{x:Bind common:AppHelper.Settings.ActiveWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </dev:SettingsCard>
             <dev:SettingsCard Description="Automatically remove the rainbow effect for all windows when the application is closed, ensuring a clean slate every time."
                               Header="Reset All Windows on Closing"

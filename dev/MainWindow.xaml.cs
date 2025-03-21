@@ -1,22 +1,35 @@
 ﻿using RainbowFrame.Common;
-using RainbowFrame.ViewModels;
 using RainbowFrame.Views;
 
 namespace RainbowFrame;
 
 public sealed partial class MainWindow : Window
 {
-    public MainViewModel ViewModel { get; }
     internal static MainWindow Instance { get; private set; }
+    public IDelegateCommand ShowHideWindowCommand { get; }
+    public IDelegateCommand ExitCommand { get; }
     public MainWindow()
     {
-        ViewModel = App.GetService<MainViewModel>();
         this.InitializeComponent();
         Instance = this;
+
+        ShowHideWindowCommand = DelegateCommand.Create(OnShowHideWindow);
+        ExitCommand = DelegateCommand.Create(OnExit);
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Tall;
+
+        var NavService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
+        if (NavService != null)
+        {
+            NavService.Initialize(NavView, NavFrame, NavigationPageMappings.PageDictionary)
+                .ConfigureDefaultPage(typeof(MainPage))
+                .ConfigureSettingsPage(typeof(SettingsPage))
+                .ConfigureJsonFile("Assets/NavViewMenu/AppData.json", OrderItemsType.AscendingBoth)
+                .ConfigureTitleBar(AppTitleBar)
+                .ConfigureBreadcrumbBar(BreadCrumbNav, BreadcrumbPageMappings.PageDictionary);
+        }
         Closed += MainWindow_Closed;
     }
 
@@ -62,7 +75,7 @@ public sealed partial class MainWindow : Window
 
                 if (Settings.ResetWhenClosed)
                 {
-                    ViewModel?.ResetAll();
+                    MainPage.Instance?.ViewModel?.ResetAll();
                 }
             }
         }
@@ -79,11 +92,11 @@ public sealed partial class MainWindow : Window
         {
             string query = sender.Text;
 
-            var filteredItems = ViewModel.Windows.Where(item =>
+            var filteredItems = MainPage.Instance?.ViewModel.Windows.Where(item =>
                 (item.Text != null && item.Text.Contains(query, StringComparison.OrdinalIgnoreCase)) ||
                 item.Handle.ToString().Contains(query)).ToList();
 
-            listView.ItemsSource = filteredItems;
+            MainPage.Instance?.SetListViewItemsSource(filteredItems);
         }
     }
 
@@ -97,39 +110,25 @@ public sealed partial class MainWindow : Window
         HeaderAutoSuggestBox.Focus(FocusState.Programmatic);
     }
 
-    private void Grid_Loaded(object sender, RoutedEventArgs e)
+    public void OnShowHideWindow()
     {
-        ViewModel.RefreshCommand.Execute(null);
-    }
-
-    private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (listView.SelectedIndex == -1)
+        if (Visible)
         {
-            ViewModel.IsUIElementEnabled = false;
+            AppWindow.Hide();
         }
         else
         {
-            ViewModel.IsUIElementEnabled = true;
-        }
-        MainFrame.Navigate(typeof(ControlCenterPage));
-    }
-
-    private void OnRainbowEffectForAllWindow_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (TGRainbowEffectForAllWindow.IsOn)
-        {
-            ViewModel.StartRainbowForAllCommand.Execute(null);
-        }
-        else
-        {
-            ViewModel.StopRainbowForAllCommand.Execute(null);
+            AppWindow.Show();
         }
     }
 
-    private void NumberBoxAll_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    public void OnExit()
     {
-        ViewModel?.OnEffectSpeedAllValueChanged();
+        if (Settings.ResetWhenClosed)
+        {
+            MainPage.Instance?.ViewModel?.ResetAll();
+        }
+        Environment.Exit(0);
     }
 }
 

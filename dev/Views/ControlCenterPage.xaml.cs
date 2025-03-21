@@ -8,7 +8,7 @@ public sealed partial class ControlCenterPage : Page
     public MainViewModel ViewModel { get; set; }
     public ControlCenterPage()
     {
-        ViewModel = MainWindow.Instance.ViewModel;
+        ViewModel = MainPage.Instance.ViewModel;
         this.InitializeComponent();
     }
     protected override void OnNavigatedTo(NavigationEventArgs e)
